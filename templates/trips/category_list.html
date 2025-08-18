@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Trip Categories{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <!-- Heading -->
+    <h2 class="text-3xl font-bold text-gray-900 mb-4">Explore Our Trip Categories</h2>
+    <p class="text-lg text-gray-600 mb-10">
+      Discover adventures tailored to your interests. Choose from a variety of categories designed
+      to bring you closer to nature, culture, and unforgettable experiences.
+    </p>
+
+    <!-- Categories Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+      {% for category in categories %}
+        <a href="{% url 'trips:category_detail' category.slug %}"
+           class="group block bg-white rounded-xl shadow hover:shadow-lg overflow-hidden transition">
+          <!-- Category image (if you have category.image) -->
+          {% if category.image %}
+            <img src="{{ category.image.url }}" alt="{{ category.name }}"
+                 class="h-40 w-full object-cover group-hover:scale-105 transition-transform duration-300">
+          {% else %}
+            <div class="h-40 bg-gray-200 flex items-center justify-center text-gray-500">
+              No Image
+            </div>
+          {% endif %}
+
+          <!-- Category details -->
+          <div class="p-4">
+            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600">
+              {{ category.name }}
+            </h3>
+            <p class="mt-2 text-sm text-gray-600">
+              {{ category.description|truncatewords:20 }}
+            </p>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

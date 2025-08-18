@@ -1,0 +1,12 @@
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto}
+.container{max-width:1120px;margin:auto;padding:16px}
+.site-header,.site-footer{background:#0f172a;color:#fff}
+.site-header a{color:#fff;text-decoration:none;margin-right:16px}
+.logo{font-weight:700;margin-right:24px}
+.hero{padding:40px 0}
+.btn{display:inline-block;padding:10px 16px;border:1px solid #0f172a;border-radius:8px;text-decoration:none}
+.list{padding:24px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.card{padding:16px;border:1px solid #e5e7eb;border-radius:12px;background:#fff}
+.placeholder{color:#64748b}
+.site-footer{margin-top:40px}

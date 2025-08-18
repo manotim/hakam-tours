@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}{{ trip.title }} — Tembea{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+
+  <!-- Hero Image -->
+  <div class="relative rounded-xl overflow-hidden mb-8">
+    {% if trip.cover_image %}
+      <img src="{{ trip.cover_image.url }}" alt="{{ trip.title }}" class="w-full h-64 object-cover">
+    {% else %}
+      <div class="w-full h-64 bg-gray-200 flex items-center justify-center">No Imagee</div>
+    {% endif %}
+    <div class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white px-4 py-2 rounded-lg">
+      <h2 class="text-lg font-semibold">Safari Adventures</h2>
+    </div>
+  </div>
+
+  <!-- Trip Title + Description -->
+  <h1 class="text-2xl font-bold mb-2">{{ trip.title }}</h1>
+  <p class="text-gray-600 mb-6">{{ trip.description }}</p>
+
+  <!-- Wishlist -->
+  {% if user.is_authenticated %}
+    <form action="{% url 'trips:toggle_wishlist' trip.id %}" method="post" class="mb-6">
+      {% csrf_token %}
+      {% if user in trip.wishlisted_by.all %}
+        <button type="submit" class="px-4 py-2 rounded-lg bg-yellow-400 text-white font-medium shadow">
+          ★ Remove from Wishlist
+        </button>
+      {% else %}
+        <button type="submit" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 shadow">
+          ☆ Add to Wishlist
+        </button>
+      {% endif %}
+    </form>
+  {% else %}
+    <p class="mb-6 text-gray-600"><a href="{% url 'login' %}" class="text-blue-600 font-medium">Login</a> to add this trip to your wishlist.</p>
+  {% endif %}
+
+  <!-- Package Tabs -->
+  <div>
+    <ul class="flex border-b mb-4">
+      {% for pkg in packages %}
+        <li class="-mb-px mr-4">
+          <a href="#pkg{{ pkg.id }}" 
+             class="tab-link inline-block py-2 px-4 text-gray-600 hover:text-blue-600 border-b-2 border-transparent"
+             data-target="pkg{{ pkg.id }}">
+             {{ pkg.name }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+
+    {% for pkg in packages %}
+      <div id="pkg{{ pkg.id }}" class="tab-content hidden bg-white p-6 rounded-lg shadow mb-6">
+        <h3 class="text-lg font-semibold mb-2">{{ pkg.name }}</h3>
+        <p class="text-gray-700 mb-4">{{ pkg.description }}</p>
+        <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
+          <div>
+            <p class="font-medium">Price</p>
+            <p>{{ pkg.price }} KES</p>
+          </div>
+          <div>
+            <p class="font-medium">Max Occupancy</p>
+            <p>{{ pkg.max_people }}</p>
+          </div>
+        </div>
+        <div class="mt-6">
+          <a href="{% url 'bookings:create' trip_slug=trip.slug package_id=pkg.id %}" 
+             class="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+            Book Now
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Testimonials -->
+  <h2 class="text-xl font-bold mt-10 mb-6">Testimonials</h2>
+  <div class="space-y-8">
+    {% for t in testimonials %}
+      <article class="bg-white rounded-lg p-6 shadow-sm border">
+        <div class="flex items-start space-x-4">
+          <!-- Avatar -->
+          {% if t.avatar %}
+            <img src="{{ t.avatar.url }}" alt="{{ t.name }}" class="w-12 h-12 rounded-full object-cover">
+          {% else %}
+            <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-gray-600">
+              {{ t.name|slice:":1" }}
+            </div>
+          {% endif %}
+
+          <!-- Testimonial Content -->
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-semibold text-gray-900">{{ t.name }}</p>
+                <p class="text-sm text-gray-500">{{ t.created_at|date:"Y-m-d" }}</p>
+              </div>
+            </div>
+
+            <!-- Star Rating -->
+            <div class="flex items-center mt-1">
+              {% for i in "12345" %}
+                {% if forloop.counter <= t.rating %}
+                  <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09L5.82 12.18.944 8.09l6.08-.89L10 2l2.976 5.2 6.08.89-4.876 4.09 1.698 5.91z"/></svg>
+                {% else %}
+                  <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09L5.82 12.18.944 8.09l6.08-.89L10 2l2.976 5.2 6.08.89-4.876 4.09 1.698 5.91z"/></svg>
+                {% endif %}
+              {% endfor %}
+            </div>
+
+            <!-- Comment -->
+            <p class="mt-3 text-gray-700">{{ t.comment }}</p>
+
+            <!-- Actions -->
+            <div class="flex items-center space-x-6 mt-4 text-sm text-gray-500">
+              <span class="flex items-center space-x-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M14 9l-5 5m0 0l-5-5m5 5V3"></path>
+                </svg>
+                <span>{{ t.likes|default:"0" }}</span>
+              </span>
+              <span class="flex items-center space-x-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M17 8h2a2 2 0 012 2v9a2 2 0 01-2 2H7l-4 4V10a2 2 0 012-2h2"></path>
+                </svg>
+                <span>{{ t.replies|default:"0" }}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </article>
+    {% empty %}
+      <p class="text-gray-600">No testimonials yet.</p>
+    {% endfor %}
+  </div>
+
+  <!-- Leave Review -->
+  <div class="mt-6">
+    <a href="{% url 'testimonials:create' trip_slug=trip.slug %}" 
+       class="inline-block px-6 py-2 text-blue-600 font-medium hover:underline">
+      Leave a Review
+    </a>
+  </div>
+</div>
+
+<script>
+  // Simple Tailwind tab switcher
+  const tabs = document.querySelectorAll(".tab-link");
+  const contents = document.querySelectorAll(".tab-content");
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", function(e) {
+      e.preventDefault();
+      tabs.forEach(t => t.classList.remove("border-blue-600","text-blue-600"));
+      contents.forEach(c => c.classList.add("hidden"));
+
+      this.classList.add("border-blue-600","text-blue-600");
+      document.getElementById(this.dataset.target).classList.remove("hidden");
+    });
+  });
+
+  // Show first tab by default
+  if (tabs.length > 0) {
+    tabs[0].classList.add("border-blue-600","text-blue-600");
+    contents[0].classList.remove("hidden");
+  }
+</script>
+{% endblock %}

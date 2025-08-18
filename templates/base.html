@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Tembea — Trips across Kenya{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-white text-gray-800">
+    <!-- Header / Navbar -->
+    <header class="bg-white shadow">
+      <div class="container mx-auto flex items-center justify-between py-4 px-6">
+        <!-- Logo -->
+        <a href="/" class="text-2xl font-bold text-gray-900">Tembea</a>
+
+        <!-- Navigation -->
+        <nav class="hidden md:flex space-x-8 items-center">
+          <a href="/trips/categories/" class="text-gray-700 hover:text-blue-600">Destinations</a>
+          <a href="/blog/" class="text-gray-700 hover:text-blue-600">Blog</a>
+          <a href="/about/" class="text-gray-700 hover:text-blue-600">About Us</a>
+          
+          {% if user.is_authenticated %}
+            <a href="{% url 'trips:wishlist' %}" class="text-gray-700 hover:text-blue-600">My Wishlist</a>
+            <a href="{% url 'users:profile' %}" class="text-gray-700 hover:text-blue-600">Profile</a>
+            <form method="post" action="{% url 'logout' %}" class="inline">
+              {% csrf_token %}
+              <button type="submit" class="text-gray-700 hover:text-blue-600">Logout</button>
+            </form>
+          {% else %}
+            <a href="{% url 'users:login' %}" class="text-gray-700 hover:text-blue-600">Login</a>
+            <a href="{% url 'users:signup' %}" class="text-gray-700 hover:text-blue-600">Sign Up</a>
+          {% endif %}
+        </nav>
+
+        <!-- Book a Trip Button -->
+        <div class="hidden md:block">
+          <a href="/book-trip/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            Book a Trip
+          </a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <div class="md:hidden">
+          <button id="mobile-menu-button" class="text-gray-700 focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 space-y-2">
+        <a href="/trips/categories/" class="block text-gray-700 hover:text-blue-600">Destinations</a>
+        <a href="/blog/" class="block text-gray-700 hover:text-blue-600">Blog</a>
+        <a href="/about/" class="block text-gray-700 hover:text-blue-600">About Us</a>
+        
+        {% if user.is_authenticated %}
+          <a href="{% url 'trips:wishlist' %}" class="block text-gray-700 hover:text-blue-600">My Wishlist</a>
+          <a href="{% url 'users:profile' %}" class="block text-gray-700 hover:text-blue-600">Profile</a>
+          <form method="post" action="{% url 'logout' %}" class="block">
+            {% csrf_token %}
+            <button type="submit" class="text-gray-700 hover:text-blue-600">Logout</button>
+          </form>
+        {% else %}
+          <a href="{% url 'users:login' %}" class="block text-gray-700 hover:text-blue-600">Login</a>
+          <a href="{% url 'users:signup' %}" class="block text-gray-700 hover:text-blue-600">Sign Up</a>
+        {% endif %}
+        <a href="/book-trip/" class="block bg-blue-600 text-white px-4 py-2 rounded-lg text-center hover:bg-blue-700 transition">Book a Trip</a>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="container mx-auto px-6 py-8">
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 mt-12">
+      <div class="container mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center">
+        <div class="text-gray-700">
+          <strong>Tembea Travel Co.</strong><br>
+          Nairobi, Kenya<br>
+          +254 700 000 000 · hello@tembea.co.ke
+        </div>
+        <div class="text-gray-500 mt-4 md:mt-0">
+          <small>Secure payments • Transparent pricing • Verified reviews</small>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Mobile menu toggle script -->
+    <script>
+      const btn = document.getElementById('mobile-menu-button');
+      const menu = document.getElementById('mobile-menu');
+
+      btn.addEventListener('click', () => {
+        menu.classList.toggle('hidden');
+      });
+    </script>
+  </body>
+</html>

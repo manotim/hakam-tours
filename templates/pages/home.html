@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Tembea — Explore Kenya{% endblock %}
+{% block content %}
+
+  <!-- Hero Section -->
+  <section class="relative bg-cover bg-center h-[500px] flex items-center justify-center rounded-xl"
+           style="background-image: url('/static/images/coast1.jpg');">
+    <!-- Dark overlay -->
+    <div class="absolute inset-0 bg-black bg-opacity-40 rounded-xl"></div>
+    
+    <!-- Hero Content -->
+    <div class="relative text-center p-6 max-w-3xl">
+      <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">
+        Discover Your Next Adventure with Tembea
+      </h1>
+      <p class="text-white text-lg mb-6">
+        Explore curated travel experiences designed to inspire and connect you with the world’s most breathtaking destinations. 
+        From serene beaches to vibrant cityscapes, Tembea offers personalized journeys that cater to your unique travel desires.
+      </p>
+      <a href="{% url 'trips:trip_list' %}" 
+         class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-blue-700 transition">
+         Explore Destinations
+      </a>
+      
+    </div>
+  </section>
+
+  <!-- Featured Trips Section -->
+  <section class="py-16 bg-gray-50">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-2xl font-bold mb-10 text-center">Featured Trips</h2>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        {% for trip in current_trips %}
+          <article class="bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden">
+            {% if trip.cover_image %}
+              <img src="{{ trip.cover_image.url }}" alt="{{ trip.title }}" 
+                   class="w-full h-48 object-cover">
+            {% endif %}
+            <div class="p-5">
+              <h3 class="text-lg font-semibold mb-2">{{ trip.title }}</h3>
+              <p class="text-gray-600 text-sm mb-4">{{ trip.description|truncatewords:15 }}</p>
+              <a href="{% url 'trips:trip_detail' slug=trip.slug %}" 
+                 class="text-blue-600 font-medium hover:underline">
+                 View details →
+              </a>
+            </div>
+          </article>
+        {% empty %}
+          <article class="text-center text-gray-500 col-span-full">No trips available</article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Past Trips Section -->
+  <section class="py-16">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-2xl font-bold mb-10 text-center">Past Trips</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        {% for trip in past_trips %}
+          <article class="bg-white rounded-2xl shadow hover:shadow-lg transition p-5">
+            <h3 class="text-lg font-semibold mb-2">{{ trip.title }}</h3>
+            <p class="text-gray-600 text-sm">{{ trip.description|truncatewords:15 }}</p>
+          </article>
+        {% empty %}
+          <article class="text-center text-gray-500 col-span-full">No past trips recorded</article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+{% endblock %}

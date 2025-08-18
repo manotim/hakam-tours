@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="text-2xl font-bold mb-6">My Wishlist</h1>
+
+  {% if trips %}
+    <div class="space-y-6">
+      {% for trip in trips %}
+        <div class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm">
+          
+          <!-- Trip image + details -->
+          <div class="flex items-center space-x-4">
+            {% if trip.cover_image %}
+              <img src="{{ trip.cover_image.url }}" alt="{{ trip.title }}" 
+                   class="w-20 h-20 object-cover rounded-lg">
+            {% else %}
+              <!-- fallback image -->
+              <div class="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-sm">
+                No image
+              </div>
+            {% endif %}
+
+            <div>
+              <h2 class="font-semibold text-lg">{{ trip.title }}</h2>
+              <p class="text-sm text-gray-600">{{ trip.description|truncatewords:15 }}</p>
+            </div>
+          </div>
+
+          <!-- View Trip button -->
+          <a href="{{ trip.get_absolute_url }}"
+             class="px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium hover:bg-gray-200">
+             View Trip
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>You haven't wishlisted any trips yet.</p>
+  {% endif %}
+{% endblock %}

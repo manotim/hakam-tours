@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}All Trips — Tembea{% endblock %}
+{% block content %}
+<section class="max-w-6xl mx-auto px-6 py-12">
+  <h1 class="text-3xl font-bold mb-10 text-center">All Trips</h1>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+    {% for trip in trips %}
+      <article class="bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden">
+        {% if trip.cover_image %}
+          <img src="{{ trip.cover_image.url }}" alt="{{ trip.title }}" class="w-full h-48 object-cover">
+        {% endif %}
+        <div class="p-5">
+          <h3 class="text-lg font-semibold mb-2">{{ trip.title }}</h3>
+          <p class="text-gray-600 text-sm mb-4">{{ trip.description|truncatewords:20 }}</p>
+          <a href="{% url 'trips:trip_detail' slug=trip.slug %}" 
+             class="text-blue-600 font-medium hover:underline">
+             View details →
+          </a>
+        </div>
+      </article>
+    {% empty %}
+      <p class="text-center text-gray-500 col-span-full">No trips available.</p>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination controls -->
+  {% if is_paginated %}
+    <div class="flex justify-center items-center space-x-4 mt-10">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Previous</a>
+      {% endif %}
+
+      <span class="px-4 py-2 bg-blue-600 text-white rounded-lg">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+      </span>
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Next</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
