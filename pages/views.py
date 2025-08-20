@@ -1,7 +1,7 @@
 from django.views.generic import TemplateView, ListView, DetailView
 from team.models import TeamMember
 from trips.models import Trip
-from .models import Testimonial, BlogPost
+from .models import Testimonial
 import random
 
 
@@ -26,14 +26,4 @@ class AboutView(TemplateView):
         return ctx
 
 
-class BlogListView(ListView):
-    model = BlogPost
-    template_name = "pages/blog_list.html"
-    context_object_name = "posts"
-    ordering = ["-published_at"]
 
-
-class BlogDetailView(DetailView):
-    model = BlogPost
-    template_name = "pages/blog_detail.html"
-    context_object_name = "post"

@@ -11,9 +11,14 @@ urlpatterns = [
     path("bookings/", include("bookings.urls")),
     path("testimonials/", include("testimonials.urls")),
     path("users/", include("users.urls")),
+    path("blog/", include("blog.urls")),
     path("users/", include("django.contrib.auth.urls")),
     path("users/logout/", LogoutView.as_view(next_page="/"), name="logout"),
+
+    # CKEditor uploader
+    path("ckeditor/", include("ckeditor_uploader.urls")),
 ]
 
+# Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

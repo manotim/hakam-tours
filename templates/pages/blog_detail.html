@@ -1,8 +1,0 @@
-{% extends "base.html" %}
-{% block title %}{{ post.title }} — Tembea{% endblock %}
-{% block content %}
-  <h1>{{ post.title }}</h1>
-  <p><small>{{ post.published_at|date:"M d, Y" }}</small></p>
-  <div>{{ post.content|linebreaks }}</div>
-  <p><a href="{% url 'pages:blog_list' %}">← Back to Blog</a></p>
-{% endblock %}

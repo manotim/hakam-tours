@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Blog — Tembea{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-10">
+  <h1 class="text-4xl font-bold text-gray-800 mb-8">Latest Stories</h1>
+
+  <div class="grid md:grid-cols-3 gap-8">
+    {% for post in posts %}
+      <div class="bg-white rounded-xl overflow-hidden shadow hover:shadow-lg transition">
+        {% if post.cover_image %}
+          <a href="{% url 'blog:blog_detail' post.slug %}">
+            <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" class="w-full h-56 object-cover">
+          </a>
+        {% endif %}
+
+        <div class="p-5">
+          <h2 class="text-xl font-semibold mb-2">
+            <a href="{% url 'blog:blog_detail' post.slug %}" class="hover:text-blue-600">{{ post.title }}</a>
+          </h2>
+          <p class="text-gray-500 text-sm mb-4">{{ post.published_at|date:"F j, Y" }}</p>
+          <p class="text-gray-700">{{ post.excerpt|default:post.content|truncatechars:120|safe }}</p>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-gray-600">No posts yet.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

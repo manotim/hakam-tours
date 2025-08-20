@@ -8,7 +8,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-secret-change-me")
 DEBUG = os.getenv("DJANGO_DEBUG", "1") == "1"
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+# Determine if we are in development
+DJANGO_DEVELOPMENT = os.getenv("DJANGO_DEVELOPMENT", "False") == "True"
+
+if DJANGO_DEVELOPMENT:
+    # Allow all hosts in development (including ngrok)
+    ALLOWED_HOSTS = ["*"]
+else:
+    # Production: read from environment variable
+    ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+
+# Optionally, always include current ngrok URL for testing
+NGROK_URL = os.getenv("NGROK_URL")  # e.g., "d56f3f5028a9.ngrok-free.app"
+if NGROK_URL:
+    ALLOWED_HOSTS.append(NGROK_URL)
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.ngrok-free.app",
+    "https://d56f3f5028a9.ngrok-free.app",  # your current ngrok URL
+]
+
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -26,6 +46,9 @@ INSTALLED_APPS = [
     "accounts",
     "team",
     "users",
+    "ckeditor",
+    "ckeditor_uploader",
+    "widget_tweaks",
 ]
 
 MIDDLEWARE = [
@@ -85,11 +108,20 @@ STATIC_ROOT = BASE_DIR / "staticfiles"   # for deployment collectstatic
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# CKEditor upload path
+CKEDITOR_UPLOAD_PATH = "uploads/"
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Email settings
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-DEFAULT_FROM_EMAIL = "Tembea Tours <noreply@tembea.com>"
+# settings.py
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "manotimike@gmail.com"
+EMAIL_HOST_PASSWORD = "btvbslissxajhszs"  # NOT your normal Gmail password
+DEFAULT_FROM_EMAIL = "Tembea Tours <manotimike@gmail.com>"
 
 
 LOGIN_REDIRECT_URL = "/"

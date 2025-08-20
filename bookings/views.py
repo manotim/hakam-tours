@@ -1,9 +1,40 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import CreateView, TemplateView
-from django.core.mail import send_mail
 from .models import Booking
 from .forms import BookingForm
 from trips.models import Trip, Package
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+from .utils import send_whatsapp_message, send_telegram_message
+
+
+@csrf_exempt
+def whatsapp_webhook(request):
+    if request.method == "GET":
+        # Verification request from WhatsApp
+        verify_token = "tembea123"
+        hub_challenge = request.GET.get("hub.challenge")
+        hub_mode = request.GET.get("hub.mode")
+        token = request.GET.get("hub.verify_token")
+
+        if hub_mode == "subscribe" and token == verify_token:
+            return HttpResponse(hub_challenge)
+        else:
+            return HttpResponse("Verification failed", status=403)
+
+    elif request.method == "POST":
+        # Handle incoming WhatsApp messages
+        try:
+            data = json.loads(request.body)
+            print("Incoming WhatsApp event:", data)
+        except json.JSONDecodeError:
+            return HttpResponse(status=400)
+
+        # You can process messages here, e.g., auto-replies, logging, etc.
+        return HttpResponse("EVENT_RECEIVED", status=200)
+
 
 class BookingSuccessView(TemplateView):
     template_name = "bookings/success.html"
@@ -34,30 +65,35 @@ class BookingCreateView(CreateView):
         form.instance.package = self.package
         booking = form.save()
 
-        # Send confirmation email to traveler
-        send_mail(
-            subject=f"Booking Confirmation — {self.trip.title}",
-            message=f"Hello {booking.name},\n\n"
-                    f"Thank you for booking {self.trip.title} "
-                    f"({self.package.name}).\n"
-                    f"We have received your details and will contact you shortly.\n\n"
-                    f"- Tembea Tours Team",
-            from_email=None,  # uses DEFAULT_FROM_EMAIL
-            recipient_list=[booking.email],
+        # ✅ WhatsApp notification to admin
+        admin_number = "254759411378"  # your verified WhatsApp number
+        whatsapp_message = (
+            f"📢 New Booking Alert!\n\n"
+            f"Trip: {self.trip.title}\n"
+            f"Package: {self.package.name}\n"
+            f"Name: {booking.name}\n"
+            f"Email: {booking.email}\n"
+            f"Phone: {booking.phone}\n"
+            f"Travelers: {booking.group_size}"
         )
+        wa_response = send_whatsapp_message(admin_number, whatsapp_message)
+        print("WhatsApp API response:", wa_response)
 
-        # Send notification to admin/business
-        send_mail(
-            subject=f"New Booking — {self.trip.title}",
-            message=f"New booking received for {self.trip.title}\n\n"
-                    f"Name: {booking.name}\n"
-                    f"Email: {booking.email}\n"
-                    f"Phone: {booking.phone}\n"
-                    f"Package: {self.package.name}\n"
-                    f"Travelers: {booking.group_size}\n\n",
-            from_email=None,
-            recipient_list=["admin@tembea.com"],  # replace later with real email
+        # ✅ Telegram notification to admin
+        telegram_message = (
+            f"📢 <b>New Booking Alert!</b>\n\n"
+            f"🌍 Trip: {self.trip.title}\n"
+            f"🎫 Package: {self.package.name}\n"
+            f"👤 Name: {booking.name}\n"
+            f"✉️ Email: {booking.email}\n"
+            f"📞 Phone: {booking.phone}\n"
+            f"👥 Travelers: {booking.group_size}\n"
+            f"🕒 Time: {booking.created_at.strftime('%Y-%m-%d %H:%M')}"
         )
+        tg_response = send_telegram_message(telegram_message)
+        print("Telegram API response:", tg_response)
 
-        # Redirect to success page with trip/package for context
-        return redirect(f"{redirect('bookings:success').url}?trip={self.trip.slug}&package={self.package.id}")
+        # Redirect to success page
+        return redirect(
+            f"{redirect('bookings:success').url}?trip={self.trip.slug}&package={self.package.id}"
+        )
