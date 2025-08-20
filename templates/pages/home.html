@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Tembea — Explore Kenya{% endblock %}
+{% block title %}Hakam Tours — Explore Kenya{% endblock %}
 {% block content %}
 
   <!-- Hero Section -->
@@ -21,7 +21,6 @@
          class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-blue-700 transition">
          Explore Destinations
       </a>
-      
     </div>
   </section>
 
@@ -32,20 +31,81 @@
       
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         {% for trip in current_trips %}
-          <article class="bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden">
-            {% if trip.cover_image %}
-              <img src="{{ trip.cover_image.url }}" alt="{{ trip.title }}" 
-                   class="w-full h-48 object-cover">
+          <a href="{% url 'trips:trip_detail' trip.slug %}" 
+             class="group relative block bg-white rounded-xl shadow hover:shadow-lg overflow-hidden transition">
+            
+            <!-- Wishlist Button -->
+            {% if user.is_authenticated %}
+              <form method="post" 
+                    action="{% url 'trips:toggle_wishlist' trip.id %}" 
+                    class="absolute top-3 right-3 z-10">
+                {% csrf_token %}
+                <button type="submit" class="focus:outline-none">
+                  {% if trip.id in wishlist_ids %}
+                    <span class="text-red-500 text-2xl">♥</span>
+                  {% else %}
+                    <span class="text-gray-300 hover:text-red-500 text-2xl">♡</span>
+                  {% endif %}
+                </button>
+              </form>
+            {% else %}
+              <a href="{% url 'account_login' %}" 
+                 class="absolute top-3 right-3 z-10 text-gray-300 hover:text-red-500 text-2xl">♡</a>
             {% endif %}
-            <div class="p-5">
-              <h3 class="text-lg font-semibold mb-2">{{ trip.title }}</h3>
-              <p class="text-gray-600 text-sm mb-4">{{ trip.description|truncatewords:15 }}</p>
-              <a href="{% url 'trips:trip_detail' slug=trip.slug %}" 
-                 class="text-blue-600 font-medium hover:underline">
-                 View details →
-              </a>
+
+            <!-- Trip image -->
+            {% if trip.cover_image %}
+              <img src="{{ trip.cover_image.url }}" alt="{{ trip.title }}"
+                   class="h-48 w-full object-cover group-hover:scale-105 transition-transform duration-300">
+            {% else %}
+              <div class="h-48 bg-gray-200 flex items-center justify-center text-gray-500">
+                No Image
+              </div>
+            {% endif %}
+
+            <!-- Trip details -->
+            <div class="p-4">
+              <h3 class="text-md font-semibold text-gray-900 group-hover:text-blue-600">
+                {{ trip.title }}
+              </h3>
+
+              <!-- Duration -->
+              <div class="mt-2 flex items-center text-sm text-gray-500">
+                <span class="mr-2">⏱</span>
+                {{ trip.start_date }} – {{ trip.end_date }}
+              </div>
+
+              <!-- Reviews -->
+              {% if trip.average_rating %}
+                <div class="mt-2 flex items-center text-yellow-500 text-sm">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= trip.average_rating|floatformat:0 %}
+                      ⭐
+                    {% else %}
+                      <span class="text-gray-300">⭐</span>
+                    {% endif %}
+                  {% endfor %}
+                  <span class="ml-2 text-gray-600">{{ trip.average_rating|floatformat:2 }}/5</span>
+                </div>
+              {% else %}
+                <p class="mt-2 text-sm text-gray-400">No reviews yet</p>
+              {% endif %}
+
+              <!-- Price -->
+              {% if trip.get_min_price %}
+                <div class="mt-4 flex justify-between items-center border-t pt-3">
+                  <span class="text-sm text-gray-600">From 
+                    <span class="text-red-600 font-bold">Ksh {{ trip.get_min_price|floatformat:0 }}</span>
+                  </span>
+                  <span class="text-blue-600 text-sm font-semibold flex items-center">
+                    More Information →
+                  </span>
+                </div>
+              {% else %}
+                <p class="mt-3 text-sm text-gray-500">No packages available</p>
+              {% endif %}
             </div>
-          </article>
+          </a>
         {% empty %}
           <article class="text-center text-gray-500 col-span-full">No trips available</article>
         {% endfor %}
@@ -60,20 +120,81 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         {% for trip in past_trips %}
-          <article class="bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden">
-            {% if trip.cover_image %}
-              <img src="{{ trip.cover_image.url }}" alt="{{ trip.title }}" 
-                   class="w-full h-48 object-cover">
+          <a href="{% url 'trips:trip_detail' trip.slug %}" 
+             class="group relative block bg-white rounded-xl shadow hover:shadow-lg overflow-hidden transition">
+  
+            <!-- Wishlist Button -->
+            {% if user.is_authenticated %}
+              <form method="post" 
+                    action="{% url 'trips:toggle_wishlist' trip.id %}" 
+                    class="absolute top-3 right-3 z-10">
+                {% csrf_token %}
+                <button type="submit" class="focus:outline-none">
+                  {% if trip.id in wishlist_ids %}
+                    <span class="text-red-500 text-2xl">♥</span>
+                  {% else %}
+                    <span class="text-gray-300 hover:text-red-500 text-2xl">♡</span>
+                  {% endif %}
+                </button>
+              </form>
+            {% else %}
+              <a href="{% url 'account_login' %}" 
+                 class="absolute top-3 right-3 z-10 text-gray-300 hover:text-red-500 text-2xl">♡</a>
             {% endif %}
-            <div class="p-5">
-              <h3 class="text-lg font-semibold mb-2">{{ trip.title }}</h3>
-              <p class="text-gray-600 text-sm mb-4">{{ trip.description|truncatewords:15 }}</p>
-              <a href="{% url 'trips:trip_detail' slug=trip.slug %}" 
-                 class="text-blue-600 font-medium hover:underline">
-                 View details →
-              </a>
+
+            <!-- Trip image -->
+            {% if trip.cover_image %}
+              <img src="{{ trip.cover_image.url }}" alt="{{ trip.title }}"
+                   class="h-48 w-full object-cover group-hover:scale-105 transition-transform duration-300">
+            {% else %}
+              <div class="h-48 bg-gray-200 flex items-center justify-center text-gray-500">
+                No Image
+              </div>
+            {% endif %}
+
+            <!-- Trip details -->
+            <div class="p-4">
+              <h3 class="text-md font-semibold text-gray-900 group-hover:text-blue-600">
+                {{ trip.title }}
+              </h3>
+
+              <!-- Duration -->
+              <div class="mt-2 flex items-center text-sm text-gray-500">
+                <span class="mr-2">⏱</span>
+                {{ trip.start_date }} – {{ trip.end_date }}
+              </div>
+
+              <!-- Reviews -->
+              {% if trip.average_rating %}
+                <div class="mt-2 flex items-center text-yellow-500 text-sm">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= trip.average_rating|floatformat:0 %}
+                      ⭐
+                    {% else %}
+                      <span class="text-gray-300">⭐</span>
+                    {% endif %}
+                  {% endfor %}
+                  <span class="ml-2 text-gray-600">{{ trip.average_rating|floatformat:2 }}/5</span>
+                </div>
+              {% else %}
+                <p class="mt-2 text-sm text-gray-400">No reviews yet</p>
+              {% endif %}
+
+              <!-- Price -->
+              {% if trip.get_min_price %}
+                <div class="mt-4 flex justify-between items-center border-t pt-3">
+                  <span class="text-sm text-gray-600">From 
+                    <span class="text-red-600 font-bold">Ksh {{ trip.get_min_price|floatformat:0 }}</span>
+                  </span>
+                  <span class="text-blue-600 text-sm font-semibold flex items-center">
+                    More Information →
+                  </span>
+                </div>
+              {% else %}
+                <p class="mt-3 text-sm text-gray-500">No packages available</p>
+              {% endif %}
             </div>
-          </article>
+          </a>
         {% empty %}
           <article class="text-center text-gray-500 col-span-full">No past trips recorded</article>
         {% endfor %}

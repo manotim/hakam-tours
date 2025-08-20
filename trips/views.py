@@ -1,14 +1,38 @@
 from django.views.generic import ListView, DetailView
-from .models import Trip, Category
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
-from .models import Trip
+from django.db.models import Avg, Count   
+from .models import Trip, Category
+
 
 class TripListView(ListView):
     model = Trip
     template_name = "trips/trip_list.html"
     context_object_name = "trips"
-    paginate_by = 6   # 👈 optional pagination (6 trips per page)
+    paginate_by = 6   # 6 trips per page
+
+    def get_queryset(self):
+        # Optimize queries + add average rating & review count
+        qs = (
+            Trip.objects.all()
+            .prefetch_related("packages", "testimonials", "wishlisted_by")
+            .annotate(
+                avg_rating=Avg("testimonials__rating"),
+                review_count=Count("testimonials"),
+            )
+        )
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Pass wishlist trip IDs for highlighting hearts
+        if self.request.user.is_authenticated:
+            context["wishlist_ids"] = set(
+                self.request.user.wishlist_trips.values_list("id", flat=True)
+            )
+        else:
+            context["wishlist_ids"] = set()
+        return context
 
 
 @login_required
@@ -21,11 +45,12 @@ def toggle_wishlist(request, trip_id):
     return redirect("trips:trip_detail", slug=trip.slug)
 
 
-
 @login_required
 def wishlist(request):
     trips = Trip.objects.filter(wishlisted_by=request.user)
     return render(request, "trips/wishlist.html", {"trips": trips})
+
+
 
 class TripDetailView(DetailView):
     model = Trip

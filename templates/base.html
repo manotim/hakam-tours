@@ -1,17 +1,24 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block title %}Tembea — Trips across Kenya{% endblock %}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
+  {% load static %}
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Hakam Tours — Trips across Kenya{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="180x180" href="{% static 'images/hakamtourslogo.png' %}">
+</head>
   <body class="bg-white text-gray-800">
     <!-- Header / Navbar -->
     <header class="bg-white shadow">
       <div class="container mx-auto flex items-center justify-between py-4 px-6">
         <!-- Logo -->
-        <a href="/" class="text-2xl font-bold text-gray-900">Tembea</a>
+        <a href="/" class="flex items-center space-x-2">
+          <img src="/static/images/hakamtourslogo.png" alt="Hakam Tours" class="h-10 w-auto">
+          <span class="text-2xl font-bold text-gray-900">Hakam Tours</span>
+        </a>
 
         <!-- Navigation -->
         <nav class="hidden md:flex space-x-8 items-center">
@@ -34,7 +41,7 @@
 
         <!-- Book a Trip Button -->
         <div class="hidden md:block">
-          <a href="/book-trip/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+          <a href="{% url 'trips:trip_list' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
             Book a Trip
           </a>
         </div>
@@ -66,7 +73,7 @@
           <a href="{% url 'users:login' %}" class="block text-gray-700 hover:text-blue-600">Login</a>
           <a href="{% url 'users:signup' %}" class="block text-gray-700 hover:text-blue-600">Sign Up</a>
         {% endif %}
-        <a href="/book-trip/" class="block bg-blue-600 text-white px-4 py-2 rounded-lg text-center hover:bg-blue-700 transition">Book a Trip</a>
+        <a href="{% url 'trips:trip_list' %}" class="block bg-blue-600 text-white px-4 py-2 rounded-lg text-center hover:bg-blue-700 transition">Book Trip</a>
       </div>
     </header>
 

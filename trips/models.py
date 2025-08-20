@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.conf import settings
+from django.db.models import Avg
 
 class Category(models.Model):
     name = models.CharField(max_length=200, unique=True)
@@ -34,6 +35,17 @@ class Trip(models.Model):
     cover_image = models.ImageField(upload_to="trips/covers/", blank=True, null=True)
     wishlisted_by = models.ManyToManyField(settings.AUTH_USER_MODEL,related_name="wishlisted_trips",blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def get_min_price(self):
+        """Return cheapest package price or None if no packages exist."""
+        cheapest = self.packages.order_by("price").first()
+        return cheapest.price if cheapest else None
+    
+    def average_rating(self):
+        """Returns average rating from testimonials (1–5) or None."""
+        if hasattr(self, "testimonials"):
+            return self.testimonials.aggregate(avg=Avg("rating"))["avg"]
+        return None
 
     class Meta:
         ordering = ["-start_date"]
