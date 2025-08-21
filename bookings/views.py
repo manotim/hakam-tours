@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import CreateView, TemplateView
 from .models import Booking
+from django.urls import reverse
 from .forms import BookingForm
 from trips.models import Trip, Package
 from django.http import HttpResponse
@@ -13,7 +14,6 @@ from .utils import send_whatsapp_message, send_telegram_message
 @csrf_exempt
 def whatsapp_webhook(request):
     if request.method == "GET":
-        # Verification request from WhatsApp
         verify_token = "tembea123"
         hub_challenge = request.GET.get("hub.challenge")
         hub_mode = request.GET.get("hub.mode")
@@ -25,14 +25,12 @@ def whatsapp_webhook(request):
             return HttpResponse("Verification failed", status=403)
 
     elif request.method == "POST":
-        # Handle incoming WhatsApp messages
         try:
             data = json.loads(request.body)
-            print("Incoming WhatsApp event:", data)
+            print("📩 Incoming WhatsApp event:", data)
         except json.JSONDecodeError:
             return HttpResponse(status=400)
 
-        # You can process messages here, e.g., auto-replies, logging, etc.
         return HttpResponse("EVENT_RECEIVED", status=200)
 
 
@@ -60,40 +58,66 @@ class BookingCreateView(CreateView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        # Attach trip & package automatically
+        print("✅ form_valid triggered!")  # DEBUG PRINT
         form.instance.trip = self.trip
         form.instance.package = self.package
+
+        if form.instance.start_date and form.instance.end_date:
+            form.instance.duration = (form.instance.end_date - form.instance.start_date).days
+
         booking = form.save()
 
-        # ✅ WhatsApp notification to admin
-        admin_number = "254759411378"  # your verified WhatsApp number
-        whatsapp_message = (
-            f"📢 New Booking Alert!\n\n"
-            f"Trip: {self.trip.title}\n"
-            f"Package: {self.package.name}\n"
-            f"Name: {booking.name}\n"
-            f"Email: {booking.email}\n"
-            f"Phone: {booking.phone}\n"
-            f"Travelers: {booking.group_size}"
-        )
-        wa_response = send_whatsapp_message(admin_number, whatsapp_message)
-        print("WhatsApp API response:", wa_response)
+        # WhatsApp notification
+        try:
+            admin_number = "254759411378"
+            whatsapp_message = (
+                f"📢 New Booking Alert!\n\n"
+                f"🌍 Trip: {self.trip.title}\n"
+                f"🎫 Package: {self.package.name}\n"
+                f"👤 Name: {booking.name}\n"
+                f"✉️ Email: {booking.email}\n"
+                f"📞 Phone: {booking.phone}\n"
+                f"👥 Travelers: {booking.group_size}\n"
+                f"🗓️ Start: {booking.start_date}\n"
+                f"🗓️ End: {booking.end_date}\n"
+                f"⏳ Duration: {booking.duration} days\n"
+                f"🚍 Mode: {booking.get_mode_of_travel_display()}\n"
+                f"🏨 Hotel: {booking.get_hotel_display()}\n"
+                f"🌐 Nationality: {booking.nationality}"
+            )
+            wa_response = send_whatsapp_message(admin_number, whatsapp_message)
+            print("📤 WhatsApp API response:", wa_response)
+        except Exception as e:
+            print("⚠️ WhatsApp error:", e)
 
-        # ✅ Telegram notification to admin
-        telegram_message = (
-            f"📢 <b>New Booking Alert!</b>\n\n"
-            f"🌍 Trip: {self.trip.title}\n"
-            f"🎫 Package: {self.package.name}\n"
-            f"👤 Name: {booking.name}\n"
-            f"✉️ Email: {booking.email}\n"
-            f"📞 Phone: {booking.phone}\n"
-            f"👥 Travelers: {booking.group_size}\n"
-            f"🕒 Time: {booking.created_at.strftime('%Y-%m-%d %H:%M')}"
-        )
-        tg_response = send_telegram_message(telegram_message)
-        print("Telegram API response:", tg_response)
+        # Telegram notification
+        try:
+            telegram_message = (
+                f"📢 <b>New Booking Alert!</b>\n\n"
+                f"🌍 <b>Trip:</b> {self.trip.title}\n"
+                f"🎫 <b>Package:</b> {self.package.name}\n"
+                f"👤 <b>Name:</b> {booking.name}\n"
+                f"✉️ <b>Email:</b> {booking.email}\n"
+                f"📞 <b>Phone:</b> {booking.phone}\n"
+                f"👥 <b>Travelers:</b> {booking.group_size}\n"
+                f"🗓️ <b>Start:</b> {booking.start_date}\n"
+                f"🗓️ <b>End:</b> {booking.end_date}\n"
+                f"⏳ <b>Duration:</b> {booking.duration} days\n"
+                f"🚍 <b>Mode:</b> {booking.get_mode_of_travel_display()}\n"
+                f"🏨 <b>Hotel:</b> {booking.get_hotel_display()}\n"
+                f"🌐 <b>Nationality:</b> {booking.nationality}\n"
+                f"🕒 <b>Time:</b> {booking.created_at.strftime('%Y-%m-%d %H:%M')}"
+            )
+            tg_response = send_telegram_message(telegram_message)
+            print("📤 Telegram API response:", tg_response)
+        except Exception as e:
+            print("⚠️ Telegram error:", e)
 
-        # Redirect to success page
         return redirect(
-            f"{redirect('bookings:success').url}?trip={self.trip.slug}&package={self.package.id}"
+            f"{reverse('bookings:success')}?trip={self.trip.slug}&package={self.package.id}"
         )
+
+    def form_invalid(self, form):
+        print("❌ form_invalid triggered!")
+        print("Errors:", form.errors.as_json())  # DEBUG PRINT
+        return super().form_invalid(form)

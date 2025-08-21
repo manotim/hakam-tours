@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Count   
 from .models import Trip, Category
 
-
 class TripListView(ListView):
     model = Trip
     template_name = "trips/trip_list.html"
@@ -28,7 +27,7 @@ class TripListView(ListView):
         # Pass wishlist trip IDs for highlighting hearts
         if self.request.user.is_authenticated:
             context["wishlist_ids"] = set(
-                self.request.user.wishlist_trips.values_list("id", flat=True)
+                self.request.user.wishlisted_trips.values_list("id", flat=True)
             )
         else:
             context["wishlist_ids"] = set()
@@ -49,6 +48,7 @@ def toggle_wishlist(request, trip_id):
 def wishlist(request):
     trips = Trip.objects.filter(wishlisted_by=request.user)
     return render(request, "trips/wishlist.html", {"trips": trips})
+
 
 
 
