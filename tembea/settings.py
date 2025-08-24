@@ -59,6 +59,8 @@ INSTALLED_APPS = [
     "ckeditor",
     "ckeditor_uploader",
     "widget_tweaks",
+    "cloudinary",
+    "cloudinary_storage",
 ]
 
 MIDDLEWARE = [
@@ -128,10 +130,6 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"   # for deployment collectstatic
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
-# MEDIA (used for local dev; Cloudinary will override storage in prod)
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
 
 # CKEditor upload path (prefix/folder; works with local or Cloudinary)
 CKEDITOR_UPLOAD_PATH = "uploads/"
