@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     "testimonials",
     "accounts",
     "team",
-    "users",
+    "users.apps.UsersConfig",
     "ckeditor",
     "ckeditor_uploader",
     "widget_tweaks",
