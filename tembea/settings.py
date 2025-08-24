@@ -56,11 +56,10 @@ INSTALLED_APPS = [
     "accounts",
     "team",
     "users.apps.UsersConfig",
+    # third-party apps
     "ckeditor",
     "ckeditor_uploader",
     "widget_tweaks",
-    "cloudinary",
-    "cloudinary_storage",
 ]
 
 MIDDLEWARE = [
@@ -136,7 +135,7 @@ CKEDITOR_UPLOAD_PATH = "uploads/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Email settings (as you had)
+# Email settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
@@ -152,7 +151,6 @@ LOGIN_URL = "login"
 # -----------------------------
 # Cloudinary (for media storage)
 # -----------------------------
-# Toggle: enable Cloudinary automatically in production, or via env
 USE_CLOUDINARY = os.getenv("USE_CLOUDINARY", "1") == "1" and not DJANGO_DEVELOPMENT
 
 if USE_CLOUDINARY:
@@ -166,7 +164,3 @@ if USE_CLOUDINARY:
 
     # Store user uploads (including CKEditor uploads) on Cloudinary
     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-
-    # Optional: if you *also* want static files on Cloudinary, you'd set
-    # STATICFILES_STORAGE = "cloudinary_storage.storage.StaticHashedCloudinaryStorage"
-    # but you're already using WhiteNoise for static, which is fine.
