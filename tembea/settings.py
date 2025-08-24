@@ -2,12 +2,15 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
+
 load_dotenv()  # reads .env in project root
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-secret-change-me")
 DEBUG = os.getenv("DJANGO_DEBUG", "1") == "1"
+
 # Determine if we are in development
 DJANGO_DEVELOPMENT = os.getenv("DJANGO_DEVELOPMENT", "False") == "True"
 
@@ -17,6 +20,10 @@ if DJANGO_DEVELOPMENT:
 else:
     # Production: read from environment variable
     ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+    # Render sets RENDER_EXTERNAL_HOSTNAME automatically
+    RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+    if RENDER_EXTERNAL_HOSTNAME:
+        ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Optionally, always include current ngrok URL for testing
 NGROK_URL = os.getenv("NGROK_URL")  # e.g., "d56f3f5028a9.ngrok-free.app"
@@ -25,9 +32,11 @@ if NGROK_URL:
 
 CSRF_TRUSTED_ORIGINS = [
     "https://*.ngrok-free.app",
-    "https://d56f3f5028a9.ngrok-free.app",  # your current ngrok URL
+    "https://d56f3f5028a9.ngrok-free.app",  # replace with your current ngrok URL
 ]
-
+# Add Render domain automatically
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
 
 
 INSTALLED_APPS = [
@@ -53,6 +62,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # add whitenoise here
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -81,13 +91,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "tembea.wsgi.application"
 
-# Dev DB (SQLite). We’ll swap to Postgres for deployment.
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+
+# DATABASES
+if DJANGO_DEVELOPMENT:
+    # Local dev = SQLite
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
+else:
+    # Production = PostgreSQL (Render gives DATABASE_URL env var)
+    DATABASES = {
+        "default": dj_database_url.config(
+            default="postgres://user:password@localhost:5432/dbname",
+            conn_max_age=600,
+            ssl_require=True,
+        )
+    }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -104,6 +127,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"   # for deployment collectstatic
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -114,18 +138,14 @@ CKEDITOR_UPLOAD_PATH = "uploads/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Email settings
-# settings.py
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "manotimike@gmail.com"
-EMAIL_HOST_PASSWORD = "btvbslissxajhszs"  # NOT your normal Gmail password
+EMAIL_HOST_PASSWORD = "btvbslissxajhszs"  # App password
 DEFAULT_FROM_EMAIL = "Tembea Tours <manotimike@gmail.com>"
-
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
-
-LOGIN_URL = "login"        # where to send anonymous users
-
+LOGIN_URL = "login"
