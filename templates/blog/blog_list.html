@@ -3,23 +3,84 @@
 
 {% block content %}
 <div class="max-w-6xl mx-auto px-4 py-10">
-  <h1 class="text-4xl font-bold text-gray-800 mb-8">Latest Stories</h1>
+  <!-- Page Title -->
+  <h1 class="text-2xl font-bold text-gray-800 mb-8 uppercase tracking-wide">Blog</h1>
+  <hr class="mb-10">
 
-  <div class="grid md:grid-cols-3 gap-8">
+  <!-- Blog posts list -->
+  <div class="space-y-12">
     {% for post in posts %}
-      <div class="bg-white rounded-xl overflow-hidden shadow hover:shadow-lg transition">
-        {% if post.cover_image %}
-          <a href="{% url 'blog:blog_detail' post.slug %}">
-            <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" class="w-full h-56 object-cover">
-          </a>
-        {% endif %}
+      <div class="grid md:grid-cols-2 gap-6 items-start">
+        
+        <!-- Left: Image -->
+        <div class="relative">
+          {% if post.cover_image %}
+            <a href="{% url 'blog:blog_detail' post.slug %}">
+              <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" class="w-full h-72 object-cover rounded-lg shadow">
+            </a>
+          {% else %}
+            <div class="w-full h-72 bg-gray-200 rounded-lg"></div>
+          {% endif %}
 
-        <div class="p-5">
+          <!-- Categories/Tags -->
+          <div class="absolute top-3 left-3 flex flex-wrap gap-2">
+            {% if post.categories.all %}
+              {% for category in post.categories.all %}
+                <span class="bg-yellow-500 text-black text-xs font-semibold px-2 py-1 rounded uppercase">
+                  {{ category.name }}
+                </span>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Right: Text -->
+        <div>
           <h2 class="text-xl font-semibold mb-2">
             <a href="{% url 'blog:blog_detail' post.slug %}" class="hover:text-blue-600">{{ post.title }}</a>
           </h2>
-          <p class="text-gray-500 text-sm mb-4">{{ post.published_at|date:"F j, Y" }}</p>
-          <p class="text-gray-700">{{ post.excerpt|default:post.content|truncatechars:120|safe }}</p>
+
+          <!-- Meta Info -->
+          <p class="text-sm text-gray-500 mb-3">
+            Posted on <span class="font-semibold">{{ post.published_at|date:"F j, Y" }}</span>
+            {% if post.author %} By <span class="font-semibold">{{ post.author }}</span>{% endif %}
+          </p>
+
+          <!-- Excerpt -->
+          <p class="text-gray-700 mb-4">
+            {{ post.excerpt|default:post.content|truncatechars:150|safe }}
+          </p>
+
+          <!-- Continue Reading -->
+          <a href="{% url 'blog:blog_detail' post.slug %}" 
+             class="font-bold text-sm uppercase text-gray-800 hover:text-blue-600 relative inline-block">
+            CONTINUE READING
+            <span class="absolute left-0 -bottom-0.5 w-full h-0.5 bg-yellow-400"></span>
+          </a>
+
+          <!-- Share Icons -->
+        <div class="mt-4 flex space-x-3">
+          <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" 
+            target="_blank" class="text-blue-600 hover:text-blue-800">
+            <i class="fa-brands fa-facebook text-xl"></i>
+          </a>
+
+          <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ post.title }}" 
+            target="_blank" class="text-sky-500 hover:text-sky-700">
+            <i class="fa-brands fa-twitter text-xl"></i>
+          </a>
+
+          <a href="mailto:?subject={{ post.title }}&body={{ request.build_absolute_uri }}" 
+            class="text-gray-600 hover:text-gray-800">
+            <i class="fa-solid fa-envelope text-xl"></i>
+          </a>
+
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" 
+            target="_blank" class="text-blue-700 hover:text-blue-900">
+            <i class="fa-brands fa-linkedin text-xl"></i>
+          </a>
+        </div>
+
         </div>
       </div>
     {% empty %}
