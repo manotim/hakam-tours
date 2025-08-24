@@ -32,12 +32,13 @@ if NGROK_URL:
 
 CSRF_TRUSTED_ORIGINS = [
     "https://*.ngrok-free.app",
-    "https://d56f3f5028a9.ngrok-free.app",  # replace with your current ngrok URL
 ]
-# Add Render domain automatically
-if RENDER_EXTERNAL_HOSTNAME:
-    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
-
+# Add explicit ngrok if provided
+if NGROK_URL:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{NGROK_URL}")
+# Add Render domain automatically (production)
+if not DJANGO_DEVELOPMENT and os.getenv("RENDER_EXTERNAL_HOSTNAME"):
+    CSRF_TRUSTED_ORIGINS.append(f"https://{os.environ['RENDER_EXTERNAL_HOSTNAME']}")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -62,7 +63,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # add whitenoise here
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # static files
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -76,7 +77,7 @@ ROOT_URLCONF = "tembea.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],  # ← our global templates folder
+        "DIRS": [BASE_DIR / "templates"],  # our global templates folder
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -90,7 +91,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "tembea.wsgi.application"
-
 
 # DATABASES
 if DJANGO_DEVELOPMENT:
@@ -111,7 +111,6 @@ else:
         )
     }
 
-
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -124,20 +123,22 @@ TIME_ZONE = "Africa/Nairobi"
 USE_I18N = True
 USE_TZ = True
 
+# STATIC FILES
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"   # for deployment collectstatic
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+# MEDIA (used for local dev; Cloudinary will override storage in prod)
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# CKEditor upload path
+# CKEditor upload path (prefix/folder; works with local or Cloudinary)
 CKEDITOR_UPLOAD_PATH = "uploads/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Email settings
+# Email settings (as you had)
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
@@ -149,3 +150,25 @@ DEFAULT_FROM_EMAIL = "Tembea Tours <manotimike@gmail.com>"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 LOGIN_URL = "login"
+
+# -----------------------------
+# Cloudinary (for media storage)
+# -----------------------------
+# Toggle: enable Cloudinary automatically in production, or via env
+USE_CLOUDINARY = os.getenv("USE_CLOUDINARY", "1") == "1" and not DJANGO_DEVELOPMENT
+
+if USE_CLOUDINARY:
+    INSTALLED_APPS += ["cloudinary_storage", "cloudinary"]
+
+    CLOUDINARY_STORAGE = {
+        "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
+        "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
+        "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
+    }
+
+    # Store user uploads (including CKEditor uploads) on Cloudinary
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+    # Optional: if you *also* want static files on Cloudinary, you'd set
+    # STATICFILES_STORAGE = "cloudinary_storage.storage.StaticHashedCloudinaryStorage"
+    # but you're already using WhiteNoise for static, which is fine.
