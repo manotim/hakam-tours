@@ -159,14 +159,7 @@ USE_CLOUDINARY = os.getenv("USE_CLOUDINARY", "1") == "1" and not DJANGO_DEVELOPM
 if USE_CLOUDINARY:
     INSTALLED_APPS += ["cloudinary_storage", "cloudinary"]
 
-    CLOUDINARY_STORAGE = {
-        "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
-        "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
-        "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
-    }
-
-    # Store user uploads (including CKEditor uploads) on Cloudinary
+    # Let the Cloudinary backend read everything from CLOUDINARY_URL
     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
-    # ✅ This lets Cloudinary generate the full res.cloudinary.com URLs
-    MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_STORAGE['CLOUD_NAME']}/"
+    # Do NOT override MEDIA_URL — Cloudinary generates full URLs automatically
