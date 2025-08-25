@@ -168,5 +168,5 @@ if USE_CLOUDINARY:
     # Store user uploads (including CKEditor uploads) on Cloudinary
     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
-    # ✅ Let the storage backend generate correct Cloudinary URLs
-    MEDIA_URL = "/media/"
+    # ✅ This lets Cloudinary generate the full res.cloudinary.com URLs
+    MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_STORAGE['CLOUD_NAME']}/"
