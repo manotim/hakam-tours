@@ -11,7 +11,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-secret-change-me")
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ["true", "1", "yes"]
 
-
 # Determine if we are in development
 DJANGO_DEVELOPMENT = os.getenv("DJANGO_DEVELOPMENT", "False") == "True"
 
@@ -128,7 +127,6 @@ USE_TZ = True
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-
 # STATIC FILES
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
@@ -169,4 +167,6 @@ if USE_CLOUDINARY:
 
     # Store user uploads (including CKEditor uploads) on Cloudinary
     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-    MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_STORAGE['CLOUD_NAME']}/"
+
+    # ✅ Let the storage backend generate correct Cloudinary URLs
+    MEDIA_URL = "/media/"
