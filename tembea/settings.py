@@ -154,7 +154,8 @@ LOGIN_URL = "login"
 # -----------------------------
 # Cloudinary (for media storage)
 # -----------------------------
-USE_CLOUDINARY = os.getenv("USE_CLOUDINARY", "1") == "1" and not DJANGO_DEVELOPMENT
+# USE_CLOUDINARY = os.getenv("USE_CLOUDINARY", "1") == "1" and not DJANGO_DEVELOPMENT
+USE_CLOUDINARY = 0
 
 if USE_CLOUDINARY:
     INSTALLED_APPS += ["cloudinary_storage", "cloudinary"]

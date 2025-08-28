@@ -36,6 +36,8 @@ class Trip(models.Model):
     wishlisted_by = models.ManyToManyField(settings.AUTH_USER_MODEL,related_name="wishlisted_trips",blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    is_hot = models.BooleanField(default=False, help_text="Mark as hot trip to feature on home page")
+
     def get_min_price(self):
         """Return cheapest package price or None if no packages exist."""
         cheapest = self.packages.order_by("price").first()

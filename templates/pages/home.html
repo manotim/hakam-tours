@@ -24,6 +24,46 @@
     </div>
   </section>
 
+  <!-- Hot Trips Section -->
+<section class="py-8">
+  <div class="max-w-7xl mx-auto px-4">
+    
+    <!-- Header -->
+    <div class="flex justify-between items-center bg-red-600 text-white px-4 py-3 rounded-t-lg">
+      <span class="font-bold">🔥 Hot Trips | Live Now</span>
+      <a href="{% url 'trips:trip_list' %}?hot=1" class="text-sm underline">See All →</a>
+    </div>
+
+    <!-- Trips Row -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 bg-white p-4 rounded-b-lg shadow">
+      {% for trip in hot_trips %}
+        <a href="{{ trip.get_absolute_url }}" 
+           class="block border-2 border-red-500 rounded-lg overflow-hidden group hover:shadow-lg">
+          
+          {% if trip.cover_image %}
+            <img src="{{ trip.cover_image.url }}" alt="{{ trip.title }}" 
+                 class="h-32 w-full object-cover group-hover:scale-105 transition">
+          {% else %}
+            <div class="h-32 flex items-center justify-center bg-gray-100 text-gray-500">No Image</div>
+          {% endif %}
+
+          <div class="p-2">
+            <h3 class="text-sm font-semibold text-gray-900 truncate">{{ trip.title }}</h3>
+            {% if trip.get_min_price %}
+              <div class="text-red-600 font-bold text-sm">
+                Ksh {{ trip.get_min_price|floatformat:0 }}
+              </div>
+            {% endif %}
+          </div>
+        </a>
+      {% empty %}
+        <p class="col-span-full text-center text-gray-500">No hot trips right now.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
    <!-- Featured Trips Section -->
   <section class="py-16 bg-gray-50">
     <div class="max-w-6xl mx-auto px-6">

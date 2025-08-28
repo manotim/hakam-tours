@@ -14,7 +14,7 @@
           referrerpolicy="no-referrer" />
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" sizes="180x180" href="{% static 'images/hakamtourslogo.png' %}">
+  <link rel="icon" type="image/png" sizes="180x180" href="{% static 'images/LogoHakamNew.png' %}">
 </head>
   <body class="bg-white text-gray-800">
     <!-- Header / Navbar -->
@@ -22,7 +22,7 @@
       <div class="container mx-auto flex items-center justify-between py-4 px-6">
         <!-- Logo -->
         <a href="/" class="flex items-center space-x-2">
-          <img src="/static/images/hakamtourslogo.png" alt="Hakam Tours" class="h-10 w-auto">
+          <img src="/static/images/LogoHakamNew.png" alt="Hakam Tours" class="h-10 w-auto">
           <span class="text-2xl font-bold text-gray-900">Hakam Tours</span>
         </a>
 
@@ -88,19 +88,56 @@
       {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-gray-100 mt-12">
-      <div class="container mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center">
-        <div class="text-gray-700">
-          <strong>Tembea Travel Co.</strong><br>
-          Nairobi, Kenya<br>
-          +254 700 000 000 · hello@tembea.co.ke
-        </div>
-        <div class="text-gray-500 mt-4 md:mt-0">
-          <small>Secure payments • Transparent pricing • Verified reviews</small>
-        </div>
+<!-- Footer -->
+<footer class="bg-black text-gray-300 py-10">
+  <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+    
+    <!-- Holiday Tour & Travels -->
+    <div>
+      <h4 class="text-white font-semibold mb-3">HOLIDAY TOUR & TRAVELS</h4>
+      <p class="text-sm leading-relaxed">
+        Kenya's leading tour and travels Booking website,
+        Over 30,000 packages worldwide.
+      </p>
+    </div>
+
+    <!-- Kenya’s Leading Tour and Travel Company -->
+    <div>
+      <h4 class="text-white font-semibold mb-3">KENYA'S LEADING TOUR AND TRAVEL COMPANY</h4>
+      <p class="text-sm mb-2">hakamtours@gmail.com<br>Nairobi, Kenya</p>
+      <p class="text-sm font-bold">PHONE: +254 729-836-336</p>
+    </div>
+
+    <!-- Quick Access -->
+    <div>
+      <h4 class="text-white font-semibold mb-3">QUICK ACCESS</h4>
+      <ul class="space-y-2 text-sm">
+        <li><a href="#" class="hover:text-white">Home</a></li>
+        <li><a href="#" class="hover:text-white">All Packages</a></li>
+        <li><a href="#" class="hover:text-white">All Destinations</a></li>
+        <li><a href="#" class="hover:text-white">Contact Us</a></li>
+      </ul>
+    </div>
+
+    <!-- Follow With Us -->
+    <div>
+      <h4 class="text-white font-semibold mb-3">FOLLOW WITH US</h4>
+      <p class="text-sm mb-4">Join the thousands of other followers on our social platforms and get our latest offers</p>
+      <div class="flex space-x-4 text-xl">
+        <a href="#" class="hover:text-white"><i class="fab fa-facebook"></i></a>
+        <a href="#" class="hover:text-white"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="hover:text-white"><i class="fab fa-instagram"></i></a>
       </div>
-    </footer>
+    </div>
+
+  </div>
+
+  <!-- Bottom small bar -->
+  <div class="border-t border-gray-800 mt-8 pt-4 text-center text-gray-500 text-sm">
+    © 2025 Tembea Travel Co. All rights reserved.
+  </div>
+</footer>
+
 
     <!-- Mobile menu toggle script -->
     <script>

@@ -12,6 +12,7 @@ class HomeView(TemplateView):
         ctx = super().get_context_data(**kwargs)
         ctx["current_trips"] = Trip.objects.filter(is_current=True)
         ctx["past_trips"] = Trip.objects.filter(is_current=False)
+        ctx["hot_trips"] = Trip.objects.filter(is_hot=True)[:10] 
         return ctx
 
 

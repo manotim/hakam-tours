@@ -20,6 +20,10 @@ class TripListView(ListView):
                 review_count=Count("testimonials"),
             )
         )
+        # Apply hot filter if ?hot=1
+        if self.request.GET.get("hot") == "1":
+            qs = qs.filter(is_hot=True)
+            
         return qs
 
     def get_context_data(self, **kwargs):
