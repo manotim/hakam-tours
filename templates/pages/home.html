@@ -10,16 +10,29 @@
     
     <!-- Hero Content -->
     <div class="relative text-center p-6 max-w-3xl">
-      <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">
-        Discover Your Next Adventure with Tembea
+      <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4" style="font-family: 'Gravitas One', serif;">
+        Discover Your Next Adventure with Hakam Tours
       </h1>
-      <p class="text-white text-lg mb-6">
+      <p class="text-gray-200 text-xl mb-6" style="font-family: 'Gravitas One', serif;">
         Explore curated travel experiences designed to inspire and connect you with the world’s most breathtaking destinations. 
-        From serene beaches to vibrant cityscapes, Tembea offers personalized journeys that cater to your unique travel desires.
+        From serene beaches to vibrant cityscapes, Hakam Tours offers personalized journeys that cater to your unique travel desires.
       </p>
       <a href="{% url 'trips:trip_list' %}" 
-         class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-blue-700 transition">
+         class="bg-amber-800 text-white text-2xl px-6 py-3 rounded-lg font-semibold shadow hover:bg-amber-900 transition">
          Explore Destinations
+      </a>
+    </div>
+  </section>
+
+  <!-- 📞 Call Banner -->
+  <section class="bg-yellow-400 py-6 mt-10 rounded-lg shadow-lg">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between text-center md:text-left">
+      <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-4 md:mb-0">
+        📞 Book on Call: <span class="text-blue-900">+254 72990839</span>
+      </h2>
+      <a href="tel:+25472990839"
+         class="bg-amber-800 text-white px-6 py-3 rounded-lg font-bold shadow hover:bg-blue-800 transition">
+        Call Now
       </a>
     </div>
   </section>

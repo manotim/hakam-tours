@@ -13,8 +13,16 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
           referrerpolicy="no-referrer" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gravitas+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
+
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="180x180" href="{% static 'images/LogoHakamNew.png' %}">
+  <!-- GLightbox CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
+
 </head>
   <body class="bg-white text-gray-800">
     <!-- Header / Navbar -->
@@ -23,12 +31,16 @@
         <!-- Logo -->
         <a href="/" class="flex items-center space-x-2">
           <img src="/static/images/LogoHakamNew.png" alt="Hakam Tours" class="h-10 w-auto">
-          <span class="text-2xl font-bold text-gray-900">Hakam Tours</span>
-        </a>
+          <span class="text-4xl text-gray-900" style="font-family: 'Permanent Marker', cursive;">
+  Hakam Tours
+</span>
+
 
         <!-- Navigation -->
         <nav class="hidden md:flex space-x-8 items-center">
           <a href="/trips/categories/" class="text-gray-700 hover:text-blue-600">Destinations</a>
+          <a href="/trips/safaris/" class="text-gray-700 hover:text-blue-600">Safaris</a>
+
           <a href="/blog/" class="text-gray-700 hover:text-blue-600">Blog</a>
           <a href="/about/" class="text-gray-700 hover:text-blue-600">About Us</a>
           
@@ -47,7 +59,7 @@
 
         <!-- Book a Trip Button -->
         <div class="hidden md:block">
-          <a href="{% url 'trips:trip_list' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+          <a href="{% url 'trips:trip_list' %}" class="bg-amber-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
             Book a Trip
           </a>
         </div>
@@ -140,6 +152,8 @@
 
 
     <!-- Mobile menu toggle script -->
+    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+    
     <script>
       const btn = document.getElementById('mobile-menu-button');
       const menu = document.getElementById('mobile-menu');
@@ -147,6 +161,12 @@
       btn.addEventListener('click', () => {
         menu.classList.toggle('hidden');
       });
+
+      const lightbox = GLightbox({
+    touchNavigation: true,
+    loop: true,
+    zoomable: true,
+  });
     </script>
   </body>
 </html>

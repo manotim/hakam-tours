@@ -10,6 +10,7 @@ class Category(models.Model):
     slug = models.SlugField(max_length=255, unique=True, blank=True) 
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to="categories/", blank=True, null=True)  # ✅ New field
+    is_safari = models.BooleanField(default=False, help_text="Mark this category as Safari type")
 
     class Meta:
         verbose_name_plural = "Categories"
@@ -71,6 +72,13 @@ class Trip(models.Model):
             return "past"
         return "current"
 
+class TripImage(models.Model):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="trip_images/")
+
+    def __str__(self):
+        return f"Image for {self.trip.title}"
+
 
 class Package(models.Model):
     """A trip can have multiple packages (Standard, VIP, Group, etc.)."""
@@ -80,5 +88,23 @@ class Package(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     max_people = models.PositiveIntegerField(default=1)
 
+    # ✅ New fields
+    included = models.TextField(
+        blank=True,
+        help_text="Enter one item per line for things included in this package"
+    )
+    excluded = models.TextField(
+        blank=True,
+        help_text="Enter one item per line for things NOT included in this package"
+    )
+
     def __str__(self):
         return f"{self.name} — {self.trip.title}"
+
+    # ✅ Helpers to return items as lists
+    def get_included_list(self):
+        return [item.strip() for item in self.included.splitlines() if item.strip()]
+
+    def get_excluded_list(self):
+        return [item.strip() for item in self.excluded.splitlines() if item.strip()]
+

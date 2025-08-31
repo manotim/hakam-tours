@@ -14,7 +14,7 @@ class TripListView(ListView):
         # Optimize queries + add average rating & review count
         qs = (
             Trip.objects.all()
-            .prefetch_related("packages", "testimonials", "wishlisted_by")
+            .prefetch_related("packages", "testimonials", "wishlisted_by", "images")  # 👈 include images
             .annotate(
                 avg_rating=Avg("testimonials__rating"),
                 review_count=Count("testimonials"),
@@ -28,6 +28,9 @@ class TripListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # Expose the "hot" filter state to the template
+        context["is_hot_filter"] = self.request.GET.get("hot") == "1"
+
         # Pass wishlist trip IDs for highlighting hearts
         if self.request.user.is_authenticated:
             context["wishlist_ids"] = set(
@@ -36,7 +39,6 @@ class TripListView(ListView):
         else:
             context["wishlist_ids"] = set()
         return context
-
 
 @login_required
 def toggle_wishlist(request, trip_id):
@@ -64,12 +66,17 @@ class TripDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["packages"] = self.object.packages.all()
-        # Step 9 will add testimonials, so we leave it ready:
-        ctx["testimonials"] = getattr(self.object, "testimonials", []).all() if hasattr(self.object, "testimonials") else []
+        trip = self.object
+
+        # Prefetch related objects for performance
+        ctx["packages"] = trip.packages.all()
+        ctx["images"] = trip.images.all()  # 👈 New: all gallery photos
+        ctx["testimonials"] = (
+            getattr(trip, "testimonials", []).all()
+            if hasattr(trip, "testimonials")
+            else []
+        )
         return ctx
-
-
 class CategoryListView(ListView):
     model = Category
     template_name = "trips/category_list.html"
@@ -86,3 +93,12 @@ class CategoryDetailView(DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx["trips"] = self.object.trips.all()
         return ctx
+
+class SafariListView(ListView):
+    model = Category
+    template_name = "trips/safari_list.html"
+    context_object_name = "safari_categories"
+
+    def get_queryset(self):
+        return Category.objects.filter(is_safari=True)
+    

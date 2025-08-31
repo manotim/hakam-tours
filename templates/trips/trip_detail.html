@@ -16,6 +16,26 @@
     </div>
   </div>
 
+ <!-- Trip Gallery -->
+{% if images %}
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+    {% for photo in images %}
+      <a href="{{ photo.image.url }}" 
+         data-lightbox="trip-gallery" 
+         data-title="{{ photo.caption|default:trip.title }}">
+        <img src="{{ photo.image.url }}" 
+             alt="{{ trip.title }}" 
+             class="w-full h-40 object-cover rounded-lg shadow">
+      </a>
+      {% if photo.caption %}
+        <p class="text-sm text-gray-600 mt-1">{{ photo.caption }}</p>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endif %}
+
+
+
   <!-- Trip Title + Description -->
   <h1 class="text-2xl font-bold mb-2">{{ trip.title }}</h1>
   <p class="text-gray-600 mb-6">{{ trip.description }}</p>
@@ -39,42 +59,72 @@
   {% endif %}
 
   <!-- Package Tabs -->
-  <div>
-    <ul class="flex border-b mb-4">
-      {% for pkg in packages %}
-        <li class="-mb-px mr-4">
-          <a href="#pkg{{ pkg.id }}" 
-             class="tab-link inline-block py-2 px-4 text-gray-600 hover:text-blue-600 border-b-2 border-transparent"
-             data-target="pkg{{ pkg.id }}">
-             {{ pkg.name }}
-          </a>
-        </li>
-      {% endfor %}
-    </ul>
-
+ <div>
+  <!-- Tabs -->
+  <ul class="flex border-b mb-4">
     {% for pkg in packages %}
-      <div id="pkg{{ pkg.id }}" class="tab-content hidden bg-white p-6 rounded-lg shadow mb-6">
-        <h3 class="text-lg font-semibold mb-2">{{ pkg.name }}</h3>
-        <p class="text-gray-700 mb-4">{{ pkg.description }}</p>
-        <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
-          <div>
-            <p class="font-medium">Price</p>
-            <p>{{ pkg.price }} KES</p>
-          </div>
-          <div>
-            <p class="font-medium">Max Occupancy</p>
-            <p>{{ pkg.max_people }}</p>
-          </div>
+      <li class="-mb-px mr-4">
+        <a href="#pkg{{ pkg.id }}" 
+           class="tab-link inline-block py-2 px-4 text-gray-600 hover:text-blue-600 border-b-2 border-transparent"
+           data-target="pkg{{ pkg.id }}">
+           {{ pkg.name }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <!-- Package Contents -->
+  {% for pkg in packages %}
+    <div id="pkg{{ pkg.id }}" class="tab-content hidden bg-white p-6 rounded-lg shadow mb-6">
+      <h3 class="text-lg font-semibold mb-2">{{ pkg.name }}</h3>
+      <p class="text-gray-700 mb-4">{{ pkg.description }}</p>
+
+      <!-- Price & Occupancy -->
+      <div class="grid grid-cols-2 gap-4 text-sm text-gray-600 mb-6">
+        <div>
+          <p class="font-medium">Price</p>
+          <p>{{ pkg.price }} KES</p>
         </div>
-        <div class="mt-6">
-          <a href="{% url 'bookings:create' trip_slug=trip.slug package_id=pkg.id %}" 
-             class="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
-            Book Now
-          </a>
+        <div>
+          <p class="font-medium">Max Occupancy</p>
+          <p>{{ pkg.max_people }}</p>
         </div>
       </div>
-    {% endfor %}
-  </div>
+
+      <!-- Included Items -->
+      {% if pkg.get_included_list %}
+        <h4 class="text-md font-semibold text-green-700 mb-2">Included</h4>
+        <ul class="space-y-1 mb-4">
+          {% for item in pkg.get_included_list %}
+            <li class="flex items-center text-gray-700">
+              <i class="fa fa-check text-green-600 mr-2"></i> {{ item }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <!-- Excluded Items -->
+      {% if pkg.get_excluded_list %}
+        <h4 class="text-md font-semibold text-red-700 mb-2">Excluded</h4>
+        <ul class="space-y-1 mb-4">
+          {% for item in pkg.get_excluded_list %}
+            <li class="flex items-center text-gray-700">
+              <i class="fa fa-times text-red-600 mr-2"></i> {{ item }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <!-- Booking Button -->
+      <div class="mt-6">
+        <a href="{% url 'bookings:create' trip_slug=trip.slug package_id=pkg.id %}" 
+           class="inline-block px-6 py-2 bg-amber-800 text-white rounded-lg shadow hover:bg-blue-700">
+          Book Now
+        </a>
+      </div>
+    </div>
+  {% endfor %}
+</div>
 
   <!-- Testimonials -->
   <h2 class="text-xl font-bold mt-10 mb-6">Testimonials</h2>
@@ -147,25 +197,41 @@
 </div>
 
 <script>
-  // Simple Tailwind tab switcher
-  const tabs = document.querySelectorAll(".tab-link");
-  const contents = document.querySelectorAll(".tab-content");
+  document.addEventListener("DOMContentLoaded", () => {
+    const tabs = document.querySelectorAll(".tab-link");
+    const contents = document.querySelectorAll(".tab-content");
 
-  tabs.forEach(tab => {
-    tab.addEventListener("click", function(e) {
-      e.preventDefault();
-      tabs.forEach(t => t.classList.remove("border-blue-600","text-blue-600"));
-      contents.forEach(c => c.classList.add("hidden"));
+    tabs.forEach(tab => {
+      tab.addEventListener("click", function(e) {
+        e.preventDefault();
 
-      this.classList.add("border-blue-600","text-blue-600");
-      document.getElementById(this.dataset.target).classList.remove("hidden");
+        // Reset all tabs & contents
+        tabs.forEach(t => t.classList.remove("border-blue-600", "text-blue-600"));
+        contents.forEach(c => {
+          c.classList.add("hidden", "opacity-0");
+          c.classList.remove("opacity-100");
+        });
+
+        // Activate clicked tab
+        this.classList.add("border-blue-600", "text-blue-600");
+        const targetContent = document.getElementById(this.dataset.target);
+        targetContent.classList.remove("hidden");
+
+        // Smooth fade-in
+        requestAnimationFrame(() => {
+          targetContent.classList.remove("opacity-0");
+          targetContent.classList.add("opacity-100");
+        });
+      });
     });
-  });
 
-  // Show first tab by default
-  if (tabs.length > 0) {
-    tabs[0].classList.add("border-blue-600","text-blue-600");
-    contents[0].classList.remove("hidden");
-  }
+    // Show first tab by default
+    if (tabs.length > 0) {
+      tabs[0].classList.add("border-blue-600", "text-blue-600");
+      contents[0].classList.remove("hidden");
+      contents[0].classList.add("opacity-100");
+    }
+  });
 </script>
+
 {% endblock %}

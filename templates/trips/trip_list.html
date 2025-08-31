@@ -3,18 +3,26 @@
 {% block content %}
 <section class="max-w-6xl mx-auto px-6 py-12">
   {% if is_hot_filter %}
-  <h1 class="text-3xl font-bold mb-10 text-center text-red-600">🔥 Hot Trips</h1>
+    <h1 class="text-3xl font-bold mb-10 text-center text-red-600">🔥 Hot Trips</h1>
   {% else %}
     <h1 class="text-3xl font-bold mb-10 text-center">All Trips</h1>
   {% endif %}
 
-
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
     {% for trip in trips %}
       <article class="bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden flex flex-col">
+
+        <!-- Trip Image -->
         {% if trip.cover_image %}
           <img src="{{ trip.cover_image.url }}" alt="{{ trip.title }}" class="w-full h-48 object-cover">
+        {% elif trip.images.first %}
+          <img src="{{ trip.images.first.image.url }}" alt="{{ trip.title }}" class="w-full h-48 object-cover">
+        {% else %}
+          <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400">
+            No Image
+          </div>
         {% endif %}
+
         <div class="p-5 flex flex-col flex-grow">
           <h3 class="text-lg font-semibold mb-2">{{ trip.title }}</h3>
           <p class="text-gray-600 text-sm mb-4">{{ trip.description|truncatewords:20 }}</p>
@@ -31,7 +39,6 @@
           <!-- Testimonials -->
           {% if trip.review_count > 0 %}
             <div class="flex items-center space-x-2 text-yellow-500 mb-2">
-              <!-- Stars -->
               {% for i in "12345" %}
                 {% if forloop.counter <= trip.avg_rating|floatformat:0 %}
                   ★

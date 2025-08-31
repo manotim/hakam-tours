@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Safaris{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <!-- Heading -->
+    <h2 class="text-3xl font-bold text-center text-gray-900 mb-10">
+      Safaris
+    </h2>
+
+    <!-- Safari Categories Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[200px]">
+      {% for category in safari_categories %}
+        <a href="{% url 'trips:category_detail' category.slug %}"
+           class="relative rounded-lg overflow-hidden shadow-lg group">
+          
+          <!-- Category Image -->
+          {% if category.image %}
+            <img src="{{ category.image.url }}" alt="{{ category.name }}"
+                 class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500">
+          {% else %}
+            <div class="h-full w-full flex items-center justify-center text-gray-500 bg-gray-100">
+              No Image
+            </div>
+          {% endif %}
+
+          <!-- Overlay content -->
+          <div class="absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-end text-left p-4">
+            <h3 class="text-white text-xl font-bold">
+              {{ category.name }}
+            </h3>
+            <p class="text-gray-200 text-sm mb-2">
+              ({{ category.trips.count }}) Trips
+            </p>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}
