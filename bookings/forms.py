@@ -1,7 +1,6 @@
 from django import forms
 from .models import Booking
 
-
 class BookingForm(forms.ModelForm):
     class Meta:
         model = Booking
@@ -10,6 +9,10 @@ class BookingForm(forms.ModelForm):
             "group_size", "start_date", "end_date",
             "mode_of_travel", "hotel", "nationality"
         ]
+        widgets = {
+            "start_date": forms.DateInput(attrs={"type": "date"}),
+            "end_date": forms.DateInput(attrs={"type": "date"}),
+        }
 
     def clean(self):
         cleaned_data = super().clean()
