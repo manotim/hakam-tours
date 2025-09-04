@@ -40,6 +40,10 @@ class Booking(models.Model):
     mode_of_travel = models.CharField(max_length=20, choices=MODE_OF_TRAVEL_CHOICES, default="flight")
     hotel = models.CharField(max_length=20, choices=HOTEL_CHOICES, default="3_star")
     nationality = models.CharField(max_length=100, default="Unknown")
+    special_requests = models.TextField(
+        blank=True,
+        help_text="If you selected Special Package, tell us what you’d like included."
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -56,6 +56,11 @@ class BookingCreateView(CreateView):
         self.trip = get_object_or_404(Trip, slug=kwargs["trip_slug"])
         self.package = get_object_or_404(Package, id=kwargs["package_id"], trip=self.trip)
         return super().dispatch(request, *args, **kwargs)
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["package"] = self.package   # ✅ inject package into form
+        return kwargs
 
     def form_valid(self, form):
         print("✅ form_valid triggered!")  # DEBUG PRINT
@@ -85,6 +90,9 @@ class BookingCreateView(CreateView):
                 f"🏨 Hotel: {booking.get_hotel_display()}\n"
                 f"🌐 Nationality: {booking.nationality}"
             )
+            if self.package.is_special and booking.special_requests:
+                whatsapp_message += f"\n✨ Special Requests: {booking.special_requests}"
+
             wa_response = send_whatsapp_message(admin_number, whatsapp_message)
             print("📤 WhatsApp API response:", wa_response)
         except Exception as e:
@@ -108,6 +116,9 @@ class BookingCreateView(CreateView):
                 f"🌐 <b>Nationality:</b> {booking.nationality}\n"
                 f"🕒 <b>Time:</b> {booking.created_at.strftime('%Y-%m-%d %H:%M')}"
             )
+            if self.package.is_special and booking.special_requests:
+                telegram_message += f"\n✨ <b>Special Requests:</b> {booking.special_requests}"
+
             tg_response = send_telegram_message(telegram_message)
             print("📤 Telegram API response:", tg_response)
         except Exception as e:

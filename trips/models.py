@@ -87,6 +87,7 @@ class Package(models.Model):
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     max_people = models.PositiveIntegerField(default=1)
+    is_special = models.BooleanField(default=False)  # ✅ New field
 
     # ✅ New fields
     included = models.TextField(

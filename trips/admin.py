@@ -17,8 +17,19 @@ class TripImageInline(admin.TabularInline):
 class PackageInline(admin.StackedInline):
     model = Package
     extra = 1
-    fields = ("name", "description", "price", "max_people", "included", "excluded")
+    fields = ("name", "description", "price", "max_people", "is_special", "included", "excluded")
     show_change_link = True
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super().get_formset(request, obj, **kwargs)
+         # ✅ Update label for visibility
+        formset.form.base_fields["is_special"].label = "Special Package (✨ requires custom requests)"
+        
+        # ✅ Add a more explicit help text for admins
+        formset.form.base_fields["is_special"].help_text = (
+            "Mark this as a special package. Customers will be required to provide customization requests when booking."
+        )
+        return formset
 
 
 @admin.register(Trip)
