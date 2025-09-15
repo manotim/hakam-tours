@@ -8,6 +8,10 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils.decorators import method_decorator
+from django.views.generic import ListView
+
 from .utils import send_whatsapp_message, send_telegram_message
 
 
@@ -33,7 +37,16 @@ def whatsapp_webhook(request):
 
         return HttpResponse("EVENT_RECEIVED", status=200)
 
+@method_decorator([login_required, user_passes_test(lambda u: u.is_staff)], name="dispatch")
+class BookingDashboardView(ListView):
+    model = Booking
+    template_name = "bookings/dashboard.html"
+    context_object_name = "bookings"
+    paginate_by = 20  # Show 20 per page
 
+    def get_queryset(self):
+        return Booking.objects.select_related("trip", "package").order_by("-created_at")
+    
 class BookingSuccessView(TemplateView):
     template_name = "bookings/success.html"
 

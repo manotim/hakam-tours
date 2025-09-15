@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
+  <h2 class="text-2xl font-bold mb-6">📋 Booking Dashboard</h2>
+
+  <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-blue-600 text-white">
+        <tr>
+          <th class="px-4 py-3 text-left text-sm font-semibold">Trip</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold">Package</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold">Name</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold">Email</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold">Phone</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold">Travelers</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold">Dates</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold">Duration</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold">Mode</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold">Hotel</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold">Nationality</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold">Requests</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold">Created</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        {% for booking in bookings %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3 text-sm text-gray-700">{{ booking.trip.title }}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">{{ booking.package.name }}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">{{ booking.name }}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">{{ booking.email }}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">{{ booking.phone }}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">{{ booking.group_size }}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">
+            {{ booking.start_date }} → {{ booking.end_date }}
+          </td>
+          <td class="px-4 py-3 text-sm text-gray-700">{{ booking.duration }} days</td>
+          <td class="px-4 py-3 text-sm text-gray-700">{{ booking.get_mode_of_travel_display }}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">{{ booking.get_hotel_display }}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">{{ booking.nationality }}</td>
+          <td class="px-4 py-3 text-sm text-gray-700">{{ booking.special_requests|default:"—" }}</td>
+          <td class="px-4 py-3 text-sm text-gray-500">{{ booking.created_at|naturaltime }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="13" class="px-4 py-3 text-center text-gray-500">
+            No bookings yet
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+    <div class="flex justify-center items-center space-x-2 mt-6">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}"
+           class="px-3 py-1 text-sm rounded bg-gray-100 hover:bg-gray-200">⬅ Prev</a>
+      {% endif %}
+
+      <span class="px-3 py-1 text-sm rounded bg-gray-200">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+      </span>
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}"
+           class="px-3 py-1 text-sm rounded bg-gray-100 hover:bg-gray-200">Next ➡</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
