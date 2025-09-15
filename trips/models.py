@@ -4,12 +4,13 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.conf import settings
 from django.db.models import Avg
+from cloudinary.models import CloudinaryField
 
 class Category(models.Model):
     name = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(max_length=255, unique=True, blank=True) 
     description = models.TextField(blank=True)
-    image = models.ImageField(upload_to="categories/", blank=True, null=True)  # ✅ New field
+    image = CloudinaryField("image", blank=True, null=True)
     is_safari = models.BooleanField(default=False, help_text="Mark this category as Safari type")
 
     class Meta:
@@ -32,8 +33,8 @@ class Trip(models.Model):
     description = models.TextField()
     start_date = models.DateField()
     end_date = models.DateField()
-    is_current = models.BooleanField(default=True)  # controls current/past display
-    cover_image = models.ImageField(upload_to="trips/covers/", blank=True, null=True)
+    is_current = models.BooleanField(default=True) 
+    cover_image = CloudinaryField("image", blank=True, null=True)
     wishlisted_by = models.ManyToManyField(settings.AUTH_USER_MODEL,related_name="wishlisted_trips",blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -74,7 +75,8 @@ class Trip(models.Model):
 
 class TripImage(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(upload_to="trip_images/")
+    image = CloudinaryField("image")
+
 
     def __str__(self):
         return f"Image for {self.trip.title}"

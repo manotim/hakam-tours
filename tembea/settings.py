@@ -3,13 +3,17 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 import dj_database_url
+import cloudinary
+import cloudinary_storage
+from decouple import config, Csv
 
 load_dotenv()  # reads .env in project root
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-secret-change-me")
-DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ["true", "1", "yes"]
+SECRET_KEY = config("DJANGO_SECRET_KEY")
+
+DEBUG = config("DJANGO_DEBUG", cast=bool, default=False)
 
 # Determine if we are in development
 DJANGO_DEVELOPMENT = os.getenv("DJANGO_DEVELOPMENT", "False") == "True"
@@ -47,6 +51,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'cloudinary_storage',
+    'cloudinary',
     # project apps
     "pages",
     "trips",
@@ -127,6 +133,19 @@ USE_TZ = True
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# Cloudinary (for media storage)
+# Cloudinary
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": config("CLOUDINARY_API_KEY"),
+    "API_SECRET": config("CLOUDINARY_API_SECRET"),
+}
+cloudinary.config(
+    cloud_name=config("CLOUDINARY_CLOUD_NAME"),
+    api_key=config("CLOUDINARY_API_KEY"),
+    api_secret=config("CLOUDINARY_API_SECRET")
+)
+
 # STATIC FILES
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
@@ -152,15 +171,5 @@ LOGOUT_REDIRECT_URL = "/"
 LOGIN_URL = "login"
 
 # -----------------------------
-# Cloudinary (for media storage)
-# -----------------------------
-# USE_CLOUDINARY = os.getenv("USE_CLOUDINARY", "1") == "1" and not DJANGO_DEVELOPMENT
-USE_CLOUDINARY = 0
 
-if USE_CLOUDINARY:
-    INSTALLED_APPS += ["cloudinary_storage", "cloudinary"]
-
-    # Let the Cloudinary backend read everything from CLOUDINARY_URL
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-
-    # Do NOT override MEDIA_URL — Cloudinary generates full URLs automatically
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"

@@ -3,13 +3,17 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.utils import timezone
+from cloudinary.models import CloudinaryField  # ✅ import CloudinaryField
 
 
+# -------------------
+# Blog
+# -------------------
 class BlogPost(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, blank=True)
     excerpt = models.TextField(blank=True, help_text="A short summary for previews")
-    cover_image = models.ImageField(upload_to="blog/covers/", blank=True, null=True)
+    cover_image = CloudinaryField("image", blank=True, null=True)  # ✅ Cloudinary
     content = RichTextUploadingField()
     gallery_images = models.ManyToManyField("BlogImage", related_name="posts", blank=True)
     published_at = models.DateTimeField(auto_now_add=True)
@@ -28,7 +32,7 @@ class BlogPost(models.Model):
 
 
 class BlogImage(models.Model):
-    image = models.ImageField(upload_to="blog/gallery/")
+    image = CloudinaryField("image")  # ✅ Cloudinary
     caption = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
@@ -58,9 +62,11 @@ class Competition(models.Model):
 
 
 class Celebrity(models.Model):
-    competition = models.ForeignKey(Competition, on_delete=models.CASCADE, related_name="celebrities")
+    competition = models.ForeignKey(
+        Competition, on_delete=models.CASCADE, related_name="celebrities"
+    )
     name = models.CharField(max_length=255)
-    photo = models.ImageField(upload_to="competitions/celebrities/")
+    photo = CloudinaryField("image")  # ✅ Cloudinary
     bio = models.TextField(blank=True)
 
     COLORS = [
@@ -84,9 +90,14 @@ class Celebrity(models.Model):
         # Assign color based on ID, wrap around COLORS list
         return self.COLORS[self.id % len(self.COLORS)]
 
+
 class Vote(models.Model):
-    competition = models.ForeignKey(Competition, on_delete=models.CASCADE, related_name="votes")
-    celebrity = models.ForeignKey(Celebrity, on_delete=models.CASCADE, related_name="votes")
+    competition = models.ForeignKey(
+        Competition, on_delete=models.CASCADE, related_name="votes"
+    )
+    celebrity = models.ForeignKey(
+        Celebrity, on_delete=models.CASCADE, related_name="votes"
+    )
     voter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="votes")
     voted_at = models.DateTimeField(auto_now_add=True)
 

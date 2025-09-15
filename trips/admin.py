@@ -2,6 +2,12 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from .models import Category, Trip, Package, TripImage
 
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug", "is_safari")  # adjust fields to match your model
+    search_fields = ("name",)
+    prepopulated_fields = {"slug": ("name",)}
+
 
 class TripImageInline(admin.TabularInline):
     model = TripImage
